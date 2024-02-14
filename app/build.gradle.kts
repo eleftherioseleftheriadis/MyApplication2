@@ -56,6 +56,17 @@ dependencies {
     implementation("androidx.activity:activity:1.8.2") // For Material Design 3
     implementation("androidx.activity:activity-compose:1.8.2")
     implementation("androidx.activity:activity-ktx:1.8.2")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
+    implementation("androidx.compose.material3:material3-adaptive:1.0.0-alpha06")
+    implementation("androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha03")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    // For loading and tinting drawables on older versions of the platform
+    implementation("androidx.appcompat:appcompat-resources:1.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.0-alpha13")
+    // To use constraintlayout in compose
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
+
 }
 
 // Apply the Google Services plugin

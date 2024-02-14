@@ -1,7 +1,7 @@
 package com.example.myapplication2
 
 import android.os.Bundle
-import androidx.activity.ç
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -11,36 +11,36 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.myapplication2.ui.theme.MyApplication2Theme
+import android.content.Intent
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+class MainActivity : AppCompatActivity() {
 
-class MainActivity : ComponentActivity() {
+    // Firebase Auth instance
+    private lateinit var auth: FirebaseAuth
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            MyApplication2Theme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Greeting("Android")
-                }
-            }
+        setContentView(R.layout.activity_main)
+
+        auth = FirebaseAuth.getInstance()
+
+        val welcomeText = findViewById<TextView>(R.id.welcomeText)
+        val signOutButton = findViewById<Button>(R.id.signOutButton)
+
+        // Display user email if logged in
+        auth.currentUser?.let {
+            welcomeText.text = "Welcome, ${it.email}"
         }
-    }
-}
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MyApplication2Theme {
-        Greeting("Android")
+        signOutButton.setOnClickListener {
+            auth.signOut()
+            // Redirect to login activity after sign out
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
     }
 }
