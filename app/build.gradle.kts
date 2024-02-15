@@ -68,7 +68,8 @@ dependencies {
     implementation("com.google.firebase:firebase-auth:22.3.1")
     implementation("com.google.firebase:firebase-config:21.6.1")
     implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
-
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
 
 // Apply the Google Services plugin
