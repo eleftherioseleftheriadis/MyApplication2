@@ -19,7 +19,7 @@ class MoviesAdapter(private var movies: MutableList<Movie>) : RecyclerView.Adapt
         fun bind(movie: Movie) {
             titleTextView.text = movie.title
             overviewTextView.text = movie.overview
-            genreTextView.text = movie.genreIds.joinToString(", ") { it.toString() } // Example placeholder for genre names
+            genreTextView.text = movie.genreIds?.joinToString(", ") { it.toString() } ?: "No genres available"
 
             // Implement like and watchlist button functionality here
             likeButton.setOnClickListener {
