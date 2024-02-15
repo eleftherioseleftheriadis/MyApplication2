@@ -1,6 +1,6 @@
 package com.example.myapplication2
 
-data class Movie(
+data class SMovie(
     val id: Int,
     val title: String,
     val summary: String,

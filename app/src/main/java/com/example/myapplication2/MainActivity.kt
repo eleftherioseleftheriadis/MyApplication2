@@ -2,6 +2,7 @@ package com.example.myapplication2
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.collection.emptyObjectList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.FirebaseApp
@@ -11,7 +12,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.myapplication2.MoviesAdapter
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         // Initialize RecyclerView and its adapter
         moviesRecyclerView = findViewById(R.id.moviesRecyclerView)
         moviesRecyclerView.layoutManager = LinearLayoutManager(this)
-        moviesAdapter = MoviesAdapter(emptyList()) // Initialize with empty list
+        moviesAdapter = MoviesAdapter(mutableListOf()) // Initialize with empty list
         moviesRecyclerView.adapter = moviesAdapter
 
         fetchTrendingMovies() // Call this to fetch and display trending movies
