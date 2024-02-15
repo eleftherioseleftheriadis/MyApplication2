@@ -45,12 +45,12 @@ android {
 }
 
 dependencies {
-    implementation("com.google.firebase:firebase-analytics-ktx:20.1.0") // Example version // Example version
+    implementation("com.google.firebase:firebase-analytics-ktx:21.5.1") // Example version // Example version
     implementation("com.google.firebase:firebase-firestore-ktx:24.0.2")
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21")
     implementation("androidx.compose.ui:ui:1.6.1")
-    implementation("androidx.compose.material:material:1.6.1")
+    implementation("androidx.compose.material:material:1.6.0")
     implementation("androidx.compose.ui:ui-tooling-preview:1.5.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity:1.8.2") // For Material Design 3
@@ -65,6 +65,9 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0-alpha13")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
+    implementation("com.google.firebase:firebase-auth:22.3.1")
+    implementation("com.google.firebase:firebase-config:21.6.1")
+    implementation("com.google.firebase:firebase-firestore-ktx:24.10.2")
 
 }
 
