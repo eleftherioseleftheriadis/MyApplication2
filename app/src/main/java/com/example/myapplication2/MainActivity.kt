@@ -1,8 +1,8 @@
 package com.example.myapplication2
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.collection.emptyObjectList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.FirebaseApp
@@ -12,6 +12,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,10 +31,19 @@ class MainActivity : AppCompatActivity() {
         // Initialize RecyclerView and its adapter
         moviesRecyclerView = findViewById(R.id.moviesRecyclerView)
         moviesRecyclerView.layoutManager = LinearLayoutManager(this)
-        moviesAdapter = MoviesAdapter(mutableListOf()) // Initialize with empty list
+        moviesAdapter = MoviesAdapter(mutableListOf()) { movie ->
+            movie.isLiked = !movie.isLiked
+            moviesAdapter.notifyDataSetChanged()
+            // Call refreshMoviesList here if you need to update the global list or UI immediately after a like action
+        }
         moviesRecyclerView.adapter = moviesAdapter
 
         fetchTrendingMovies() // Call this to fetch and display trending movies
+
+        // Show liked movies when the button is clicked
+        findViewById<Button>(R.id.btnShowLikedMovies).setOnClickListener {
+            showLikedMovies()
+        }
     }
 
     private fun fetchTrendingMovies() {
@@ -48,6 +58,8 @@ class MainActivity : AppCompatActivity() {
             override fun onResponse(call: Call<TrendingMoviesResponse>, response: Response<TrendingMoviesResponse>) {
                 if (response.isSuccessful) {
                     val movies = response.body()?.results ?: emptyList()
+                    AppGlobals.GlobalMoviesList.clear()
+                    AppGlobals.GlobalMoviesList.addAll(movies)
                     moviesAdapter.updateMovies(movies) // Update the adapter's data
                 } else {
                     // Handle failure
@@ -59,6 +71,19 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-}
 
-// Include your MoviesAdapter class here with an updateMovies method to set new data and notify the adapter of the change.
+    private fun showLikedMovies() {
+        val intent = Intent(this, LikedMoviesActivity::class.java)
+        startActivity(intent)
+    }
+
+    private fun refreshMoviesList() {
+        val currentMovies = AppGlobals.GlobalMoviesList
+        moviesAdapter.updateMovies(currentMovies)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshMoviesList() // Refresh the movies list to reflect any changes made elsewhere.
+    }
+}

@@ -1,10 +1,11 @@
 package com.example.myapplication2
 
-data class SMovie(
+data class Movies(
     val id: Int,
     val title: String,
-    val summary: String,
-    val genre: String,
+    val overview: String,
+    val genreIds: List<Int>?,
+    val posterPath: String,
     var isLiked: Boolean = false,
     var isWatched: Boolean = false
 )

@@ -6,5 +6,8 @@ data class Movie(
     val id: Int,
     val title: String,
     val overview: String,
-    val genreIds: List<Int> // Note: This is simplified. TMDB uses genre IDs which you'd map to genre names.
+    val genreIds: List<Int>?,
+    val posterPath: String,
+    var isLiked: Boolean = false,
+    var isWatched: Boolean = false
 )
