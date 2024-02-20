@@ -58,7 +58,10 @@ class MoviesAdapter(
     override fun onBindViewHolder(holder: MovieViewHolder, position: Int) {
         val movie = movies[position]
         holder.bind(movie)
-        holder.itemView.setOnClickListener { onMovieClick(movie) } // Use the lambda function
+        holder.itemView.setOnClickListener {
+            movie.isLiked = !movie.isLiked
+            notifyItemChanged(position)
+        } // Use the lambda function
     }
 
     override fun getItemCount(): Int = movies.size

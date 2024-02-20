@@ -1,13 +1,15 @@
 package com.example.myapplication2
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class LikedMoviesActivity : AppCompatActivity() {
     private lateinit var likedMoviesRecyclerView: RecyclerView
-    // Use consistent naming for the adapter
     private lateinit var moviesAdapter: MoviesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,20 +19,29 @@ class LikedMoviesActivity : AppCompatActivity() {
         likedMoviesRecyclerView = findViewById(R.id.likedMoviesRecyclerView)
         likedMoviesRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Initialize the adapter with empty list and an onClick lambda, even if it does nothing for now
-        moviesAdapter = MoviesAdapter(mutableListOf()) { movie ->
-            // Implement action on movie click if necessary, for example, navigating to a movie detail page
+        // Initialize the adapter with an empty list and an onClick lambda
+        moviesAdapter = MoviesAdapter(AppGlobals.GlobalMoviesList) { movie ->
+
         }
         likedMoviesRecyclerView.adapter = moviesAdapter
 
-        updateLikedMovies()
+        fetchLikedMovies()
     }
 
-    private fun updateLikedMovies() {
-        // Use the existing moviesAdapter variable
-        val likedMovies = AppGlobals.GlobalMoviesList.filter { it.isLiked }
-        // Instead of creating a new MoviesAdapter, update the existing adapter's data
-        moviesAdapter.updateMovies(likedMovies.toMutableList())
-        // No need to set the adapter again since we're updating the existing one
+    private fun fetchLikedMovies() {
+        val db = FirebaseFirestore.getInstance()
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        db.collection("users").document(userId).collection("likedMovies")
+            .get()
+            .addOnSuccessListener { documents ->
+                val likedMovies = documents.mapNotNull { doc ->
+                    doc.toObject(Movie::class.java)
+                }
+                moviesAdapter.updateMovies(likedMovies.toMutableList())
+            }
+            .addOnFailureListener { exception ->
+                Log.w("Firestore", "Error getting liked movies: ", exception)
+            }
     }
 }
