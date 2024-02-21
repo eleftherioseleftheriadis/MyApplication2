@@ -51,7 +51,7 @@
         android:id="@+id/addToWatchlistButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Watchlist"
+        android:text="TrashNotforme"
         app:layout_constraintBottom_toBottomOf="@id/movieImageView"
         app:layout_constraintEnd_toEndOf="@id/likeButton"/>
 

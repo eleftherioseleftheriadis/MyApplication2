@@ -36,13 +36,16 @@ class RegisterActivity : AppCompatActivity() {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d("RegisterActivity", "createUserWithEmail:success")
                             val user = auth.currentUser
-                            // Redirect to login or main activity as needed
+                            // Redirect to MainActivity
+                            val intent = Intent(this, MainActivity::class.java)
+                            startActivity(intent)
+                            finish() // Call finish() if you do not want users to return to this activity on back press
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w("RegisterActivity", "createUserWithEmail:failure", task.exception)
-                            Toast.makeText(baseContext, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show()
+                            Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()
                         }
+
                     }
             } else {
                 Toast.makeText(this, "Email/password must not be empty and password should be at least 6 characters", Toast.LENGTH_LONG).show()

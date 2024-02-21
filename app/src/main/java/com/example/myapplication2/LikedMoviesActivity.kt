@@ -9,6 +9,12 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.Intent
 import android.widget.Button
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 class LikedMoviesActivity : AppCompatActivity() {
     private lateinit var likedMoviesRecyclerView: RecyclerView
@@ -31,6 +37,7 @@ class LikedMoviesActivity : AppCompatActivity() {
             }
         )
 
+
         likedMoviesRecyclerView.adapter = moviesAdapter
 
         // Set the OnClickListener for the button after setContentView
@@ -39,9 +46,47 @@ class LikedMoviesActivity : AppCompatActivity() {
             val mainIntent = Intent(this, MainActivity::class.java)
             startActivity(mainIntent)
         }
+        val recommendationsButton: Button = findViewById(R.id.btnGetRecommendations)
+        recommendationsButton.setOnClickListener {
+            fetchRecommendations()
+        }
+
 
         fetchLikedMovies()
     }
+    private fun fetchRecommendations() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.yourchatgptservice.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(ChatGPTApiService::class.java)
+        val call = service.getRecommendations("your_query_parameters")
+
+        call.enqueue(object : retrofit2.Callback<RecommendationsResponse> {
+            override fun onResponse(call: Call<RecommendationsResponse>, response: Response<RecommendationsResponse>) {
+                if (response.isSuccessful) {
+                    // Process the recommendations
+                    val recommendations = response.body()?.recommendations ?: emptyList()
+                    // Update your UI or logic based on recommendations
+                } else {
+                    Log.e("API Error", "Error fetching recommendations")
+                }
+            }
+
+            override fun onFailure(call: Call<RecommendationsResponse>, t: Throwable) {
+                Log.e("API Error", "Network error getting recommendations", t)
+            }
+        })
+    }
+
+    interface ChatGPTApiService {
+        @GET("getRecommendations")
+        fun getRecommendations(@Query("param") param: String): Call<RecommendationsResponse>
+    }
+
+    data class RecommendationsResponse(val recommendations: List<String>)
+
 
     private fun fetchLikedMovies() {
         val db = FirebaseFirestore.getInstance()

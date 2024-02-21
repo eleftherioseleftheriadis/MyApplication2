@@ -15,6 +15,17 @@
         app:layout_constraintStart_toStartOf="parent"
         />
 
+    <Button
+        android:id="@+id/btnGetRecommendations"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Get Recommendations"
+        android:layout_margin="16dp"
+        android:layout_gravity="center_horizontal" />
+
+
+
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/likedMoviesRecyclerView"
