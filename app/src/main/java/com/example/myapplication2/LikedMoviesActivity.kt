@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import android.content.Intent
+import android.widget.Button
 
 class LikedMoviesActivity : AppCompatActivity() {
     private lateinit var likedMoviesRecyclerView: RecyclerView
@@ -20,10 +22,18 @@ class LikedMoviesActivity : AppCompatActivity() {
         likedMoviesRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize the adapter with an empty list and an onClick lambda
-        moviesAdapter = MoviesAdapter(AppGlobals.GlobalMoviesList) { movie ->
-
+        moviesAdapter = MoviesAdapter(mutableListOf()) { movie ->
+            // Implement action for movie click if necessary
         }
+
         likedMoviesRecyclerView.adapter = moviesAdapter
+
+        // Set the OnClickListener for the button after setContentView
+        findViewById<Button>(R.id.btnGoToMainOrSignOut).setOnClickListener {
+            // Intent to go back to MainActivity
+            val mainIntent = Intent(this, MainActivity::class.java)
+            startActivity(mainIntent)
+        }
 
         fetchLikedMovies()
     }

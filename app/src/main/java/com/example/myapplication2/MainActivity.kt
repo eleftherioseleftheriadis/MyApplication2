@@ -1,20 +1,20 @@
 package com.example.myapplication2
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import android.util.Log
-import android.widget.Button
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,29 +30,63 @@ class MainActivity : AppCompatActivity() {
         FirebaseApp.initializeApp(this)
         auth = FirebaseAuth.getInstance()
 
+        initRecyclerView()
+        initButtons()
+
+        fetchTrendingMovies()
+    }
+
+    private fun initRecyclerView() {
         moviesRecyclerView = findViewById(R.id.moviesRecyclerView)
         moviesRecyclerView.layoutManager = LinearLayoutManager(this)
         moviesAdapter = MoviesAdapter(AppGlobals.GlobalMoviesList) { movie ->
             movie.isLiked = !movie.isLiked
-            AppGlobals.GlobalMoviesList.find { it.id == movie.id }?.isLiked = movie.isLiked
-
             if (movie.isLiked) {
-                saveLikedMovie(movie) // Save liked movie when it's liked
+                saveLikedMovie(movie)
+            } else {
+                removeLikedMovie(movie)
             }
             moviesAdapter.notifyDataSetChanged()
         }
         moviesRecyclerView.adapter = moviesAdapter
+    }
 
-        fetchTrendingMovies() // Implement this method to fetch movies
+    private fun initButtons() {
+        findViewById<Button>(R.id.signOutButton).setOnClickListener {
+            showLogin()
+        }
+        findViewById<Button>(R.id.btnRegister).setOnClickListener {
+            showRegister()
+        }
 
         findViewById<Button>(R.id.btnShowLikedMovies).setOnClickListener {
-            // Implement navigation to LikedMoviesActivity
+            showLikedMovies()
         }
+    }
+
+    private fun removeLikedMovie(movie: Movie) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            Log.w("Firestore", "User not logged in")
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userId)
+            .collection("likedMovies")
+            .document(movie.id.toString())
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Movie successfully removed from liked movies")
+                AppGlobals.GlobalMoviesList.removeAll { it.id == movie.id }
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error removing movie from liked movies", e)
+            }
     }
 
     private fun saveLikedMovie(movie: Movie) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
 
         val movieData = hashMapOf(
             "id" to movie.id,
@@ -64,11 +98,15 @@ class MainActivity : AppCompatActivity() {
             "isWatched" to movie.isWatched
         )
 
+        val db = FirebaseFirestore.getInstance()
         db.collection("users").document(userId).collection("likedMovies")
             .document(movie.id.toString())
             .set(movieData)
             .addOnSuccessListener {
                 Log.d("Firestore", "Movie successfully added to liked movies!")
+                if (!AppGlobals.GlobalMoviesList.any { it.id == movie.id }) {
+                    AppGlobals.GlobalMoviesList.add(movie)
+                }
             }
             .addOnFailureListener { e ->
                 Log.w("Firestore", "Error adding movie to liked movies", e)
@@ -89,28 +127,39 @@ class MainActivity : AppCompatActivity() {
                     val movies = response.body()?.results ?: emptyList()
                     AppGlobals.GlobalMoviesList.clear()
                     AppGlobals.GlobalMoviesList.addAll(movies)
-                    moviesAdapter.updateMovies(movies) // Update the adapter's data
+                    moviesAdapter.updateMovies(movies)
                 } else {
-                    // Handle failure
+                    Log.e("Retrofit", "Error fetching trending movies: ${response.errorBody()?.string()}")
                 }
             }
 
             override fun onFailure(call: Call<TrendingMoviesResponse>, t: Throwable) {
-                // Handle error
+                Log.e("Retrofit", "Error fetching trending movies: ", t)
             }
         })
     }
 
+    private fun showLikedMovies() {
+        val intent = Intent(this, LikedMoviesActivity::class.java)
+        startActivity(intent)
+    }
 
+    private fun showLogin() {
+        val intent = Intent(this, LoginActivity::class.java)
+        startActivity(intent)
+    }
 
-    private fun refreshMoviesList() {
-        val currentMovies = AppGlobals.GlobalMoviesList
-        moviesAdapter.updateMovies(currentMovies)
+    private fun showRegister() {
+        val intent = Intent(this, RegisterActivity::class.java)
+        startActivity(intent)
     }
 
     override fun onResume() {
         super.onResume()
         refreshMoviesList() // Refresh the movies list to reflect any changes made elsewhere.
     }
-}
 
+    private fun refreshMoviesList() {
+        moviesAdapter.notifyDataSetChanged() // Simply notify the adapter to refresh the views.
+    }
+}

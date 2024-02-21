@@ -8,6 +8,6 @@ data class Movie(
     val overview: String,
     val genreIds: List<Int>?,
     val posterPath: String,
-    var isLiked: Boolean = false,
+    var isLiked: Boolean = true,
     var isWatched: Boolean = false
 )
