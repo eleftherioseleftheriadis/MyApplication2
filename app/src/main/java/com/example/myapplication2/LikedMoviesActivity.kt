@@ -22,9 +22,14 @@ class LikedMoviesActivity : AppCompatActivity() {
         likedMoviesRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize the adapter with an empty list and an onClick lambda
-        moviesAdapter = MoviesAdapter(mutableListOf()) { movie ->
-            // Implement action for movie click if necessary
-        }
+        moviesAdapter = MoviesAdapter(mutableListOf(),
+            onMovieClick = { movie ->
+                // Handle movie click action here, if needed
+            },
+            onLikeClick = { movie ->
+                // Handle like click action here, if needed
+            }
+        )
 
         likedMoviesRecyclerView.adapter = moviesAdapter
 
@@ -48,10 +53,12 @@ class LikedMoviesActivity : AppCompatActivity() {
                 val likedMovies = documents.mapNotNull { doc ->
                     doc.toObject(Movie::class.java)
                 }
+                // Just pass the new list of movies to the adapter
                 moviesAdapter.updateMovies(likedMovies.toMutableList())
             }
             .addOnFailureListener { exception ->
                 Log.w("Firestore", "Error getting liked movies: ", exception)
             }
     }
+
 }

@@ -10,41 +10,48 @@ import com.bumptech.glide.Glide
 import com.example.myapplication2.R
 import com.example.myapplication2.Movie
 import com.example.myapplication2.TrendingMoviesResponse
+import android.util.Log
 
 
 class MoviesAdapter(
     private var movies: MutableList<Movie>,
-    private val onMovieClick: (Movie) -> Unit // Add this if you want to handle clicks
+    private val onMovieClick: (Movie) -> Unit,
+    private val onLikeClick: (Movie) -> Unit = {}
 ) : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
-    class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val movieImageView: ImageView = view.findViewById(R.id.movieImageView)
-        val titleTextView: TextView = view.findViewById(R.id.movieTitleTextView)
-        val overviewTextView: TextView = view.findViewById(R.id.movieOverviewTextView)
-        val genreTextView: TextView = view.findViewById(R.id.movieGenreTextView)
-        val likeButton: Button = view.findViewById(R.id.likeButton)
-        val watchlistButton: Button = view.findViewById(R.id.addToWatchlistButton)
+
+    inner class MovieViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val movieImageView: ImageView = view.findViewById(R.id.movieImageView)
+        private val titleTextView: TextView = view.findViewById(R.id.movieTitleTextView)
+        private val overviewTextView: TextView = view.findViewById(R.id.movieOverviewTextView)
+        private val genreTextView: TextView = view.findViewById(R.id.movieGenreTextView)
+        private val likeButton: Button = view.findViewById(R.id.likeButton)
+        private val watchlistButton: Button = view.findViewById(R.id.addToWatchlistButton)
 
         fun bind(movie: Movie) {
-            // Check if the poster path is not null and construct the full image URL; otherwise, use a default image resource
-            val imageUrl = movie.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
             Glide.with(itemView.context)
-                .load(imageUrl ?: R.drawable.default_placeholder) // Use the image URL or a default placeholder if URL is null
-                .placeholder(R.drawable.default_placeholder) // Placeholder image while loading
-                .error(R.drawable.error_placeholder) // Error placeholder in case of failure
+                .load(movie.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" } ?: R.drawable.default_placeholder)
+                .placeholder(R.drawable.default_placeholder)
+                .error(R.drawable.error_placeholder)
                 .into(movieImageView)
 
             titleTextView.text = movie.title
             overviewTextView.text = movie.overview
-
-            // Assuming you convert genre IDs to genre names elsewhere
-            // If not, ensure to handle conversion here or use a placeholder
             genreTextView.text = movie.genreIds?.joinToString(", ") { it.toString() } ?: "No genres available"
 
+            itemView.setOnClickListener {
+                onMovieClick(movie)
+            }
+
             likeButton.setOnClickListener {
-                // Implement like action
+                movie.isLiked = !movie.isLiked
+                onLikeClick(movie)
+                notifyItemChanged(adapterPosition)
             }
             watchlistButton.setOnClickListener {
-                // Implement add to watchlist action
+                //movie.isWatched = !movie.isWatched
+                //Log.d("MoviesAdapter", "Watchlist clicked for movie: ${movie.title}")
+                //onMovieClick(movie)
+                notifyItemChanged(adapterPosition)
             }
         }
 
@@ -52,7 +59,7 @@ class MoviesAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_movie, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.movie_list_item, parent, false)
         return MovieViewHolder(view)
     }
 
@@ -60,7 +67,10 @@ class MoviesAdapter(
         val movie = movies[position]
         holder.bind(movie)
         holder.itemView.setOnClickListener {
+            onLikeClick(movie)
+            onMovieClick(movie)
             movie.isLiked = !movie.isLiked
+            movie.isWatched = !movie.isWatched
             notifyItemChanged(position)
         } // Use the lambda function
     }
@@ -68,6 +78,7 @@ class MoviesAdapter(
     override fun getItemCount(): Int = movies.size
 
     fun updateMovies(newMovies: List<Movie>) {
+        Log.d("MoviesAdapter", "Updating movies, new list size: ${newMovies.size}")
         movies.clear()
         movies.addAll(newMovies)
         notifyDataSetChanged()
