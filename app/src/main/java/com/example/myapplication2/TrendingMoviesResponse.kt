@@ -2,12 +2,12 @@ package com.example.myapplication2
 
 data class TrendingMoviesResponse(val results: List<Movie>)
 
-data class Movie(
-    val id: Int,
-    val title: String,
-    val overview: String,
-    val genreIds: List<Int>?,
-    val posterPath: String,
-    var isLiked: Boolean = true,
+data class Movie @JvmOverloads constructor(
+    var id: Int = 0,
+    var title: String = "",
+    var overview: String = "",
+    var genreIds: List<Int>? = null,
+    var posterPath: String? = null,
+    var isLiked: Boolean = false,
     var isWatched: Boolean = false
 )

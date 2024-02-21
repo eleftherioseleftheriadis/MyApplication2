@@ -28,8 +28,9 @@ class MoviesAdapter(
         private val watchlistButton: Button = view.findViewById(R.id.addToWatchlistButton)
 
         fun bind(movie: Movie) {
+            val imageUrl = movie.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
             Glide.with(itemView.context)
-                .load(movie.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" } ?: R.drawable.default_placeholder)
+                .load(imageUrl ?: R.drawable.default_placeholder) // Use the image URL or a default placeholder
                 .placeholder(R.drawable.default_placeholder)
                 .error(R.drawable.error_placeholder)
                 .into(movieImageView)

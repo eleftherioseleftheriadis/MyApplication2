@@ -18,6 +18,10 @@ import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        private const val TAG = "MainActivity"
+    }
+
 
     private lateinit var auth: FirebaseAuth
     private lateinit var moviesRecyclerView: RecyclerView
@@ -113,8 +117,14 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+
+
     private fun saveLikedMovie(movie: Movie) {
-        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.w("Firestore", "User not logged in, cannot save movie")
+            return
+        }
 
         val movieData = hashMapOf(
             "id" to movie.id,
@@ -132,14 +142,29 @@ class MainActivity : AppCompatActivity() {
             .set(movieData)
             .addOnSuccessListener {
                 Log.d("Firestore", "Movie successfully added to liked movies!")
-                if (!AppGlobals.GlobalMoviesList.any { it.id == movie.id }) {
-                    AppGlobals.GlobalMoviesList.add(movie)
-                }
             }
             .addOnFailureListener { e ->
                 Log.w("Firestore", "Error adding movie to liked movies", e)
             }
     }
+    private fun listenForLikedMoviesChanges(userId: String) {
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users").document(userId).collection("likedMovies")
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && !snapshot.isEmpty) {
+                    Log.d(TAG, "Current data: ${snapshot.documents}")
+                    // Optionally, update your UI here based on the changes
+                } else {
+                    Log.d(TAG, "Current data: null")
+                }
+            }
+    }
+
 
     private fun fetchTrendingMovies() {
         val retrofit = Retrofit.Builder()
