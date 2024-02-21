@@ -56,7 +56,7 @@ class LikedMoviesActivity : AppCompatActivity() {
     }
     private fun fetchRecommendations() {
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.yourchatgptservice.com/")
+            .baseUrl("https://api.openai.com/v1/chat/completions")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
