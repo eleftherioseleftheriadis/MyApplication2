@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity() {
         moviesAdapter = MoviesAdapter(AppGlobals.GlobalMoviesList,
             onMovieClick = { movie ->
                 Toast.makeText(this, "Movie clicked: ${movie.title}", Toast.LENGTH_LONG).show()
+
             },
             onLikeClick = { movie ->
                 movie.isLiked = !movie.isLiked
@@ -58,30 +59,6 @@ class MainActivity : AppCompatActivity() {
         initButtons()
         fetchTrendingMovies()
     }
-
-    //private fun initRecyclerView() {
-    //    moviesRecyclerView = findViewById(R.id.moviesRecyclerView)
-    //    moviesRecyclerView.layoutManager = LinearLayoutManager(this)
-        // Initialize the adapter with both onMovieClick and onLikeClick lambdas
-    //    moviesAdapter = MoviesAdapter(AppGlobals.GlobalMoviesList,
-    //        onMovieClick = { movie ->
-                // Handle what happens when a movie is clicked, for example:
-    //            Toast.makeText(this, "Movie clicked: ${movie.title}", Toast.LENGTH_LONG).show()
-                // Optionally, add your logic here, like navigating to a details page.
-    //        },
-    //        onLikeClick = { movie ->
-                // Handle what happens when a like button is clicked
-    //            movie.isLiked = !movie.isLiked
-    //            if (movie.isLiked) {
-     //               saveLikedMovie(movie)
-    //            } else {
-    //                removeLikedMovie(movie)
-    //            }
-    //            moviesAdapter.notifyDataSetChanged()
-    //        }
-    //    )
-    //    moviesRecyclerView.adapter = moviesAdapter
-    //}
 
 
     private fun initButtons() {

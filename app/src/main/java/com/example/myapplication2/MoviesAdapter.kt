@@ -28,7 +28,8 @@ class MoviesAdapter(
         private val watchlistButton: Button = view.findViewById(R.id.addToWatchlistButton)
 
         fun bind(movie: Movie) {
-            val imageUrl = movie.posterPath?.let { "https://image.tmdb.org/t/p/w500$it" }
+            val imageUrl = movie.posterPath?.let { "https://image.tmdb.org/t/p/original/${movie.posterPath}" }
+            Log.d("ImageURL", "Received URL: $imageUrl")
             Glide.with(itemView.context)
                 .load(imageUrl ?: R.drawable.default_placeholder) // Use the image URL or a default placeholder
                 .placeholder(R.drawable.default_placeholder)
@@ -40,18 +41,16 @@ class MoviesAdapter(
             genreTextView.text = movie.genreIds?.joinToString(", ") { it.toString() } ?: "No genres available"
 
             itemView.setOnClickListener {
-                onMovieClick(movie)
+                onLikeClick(movie)
             }
 
             likeButton.setOnClickListener {
                 movie.isLiked = !movie.isLiked
                 onLikeClick(movie)
                 notifyItemChanged(adapterPosition)
-            }
+                }
             watchlistButton.setOnClickListener {
-                //movie.isWatched = !movie.isWatched
-                //Log.d("MoviesAdapter", "Watchlist clicked for movie: ${movie.title}")
-                //onMovieClick(movie)
+                onMovieClick(movie)
                 notifyItemChanged(adapterPosition)
             }
         }

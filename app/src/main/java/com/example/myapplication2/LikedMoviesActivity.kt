@@ -15,6 +15,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import android.widget.Toast
+import retrofit2.http.Body
+import retrofit2.http.Headers
+import retrofit2.http.POST
 
 class LikedMoviesActivity : AppCompatActivity() {
     private lateinit var likedMoviesRecyclerView: RecyclerView
@@ -28,12 +32,19 @@ class LikedMoviesActivity : AppCompatActivity() {
         likedMoviesRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize the adapter with an empty list and an onClick lambda
-        moviesAdapter = MoviesAdapter(mutableListOf(),
+        moviesAdapter = MoviesAdapter(AppGlobals.GlobalMoviesList,
             onMovieClick = { movie ->
-                // Handle movie click action here, if needed
+                Toast.makeText(this, "Movie clicked: ${movie.title}", Toast.LENGTH_LONG).show()
+
             },
             onLikeClick = { movie ->
-                // Handle like click action here, if needed
+                movie.isLiked = !movie.isLiked
+                if (movie.isLiked) {
+                    //saveLikedMovie(movie)
+                } else {
+                    removeLikedMovie(movie)
+                }
+                moviesAdapter.notifyDataSetChanged()
             }
         )
 
@@ -48,44 +59,68 @@ class LikedMoviesActivity : AppCompatActivity() {
         }
         val recommendationsButton: Button = findViewById(R.id.btnGetRecommendations)
         recommendationsButton.setOnClickListener {
-            fetchRecommendations()
+           // fetchRecommendations()
         }
 
 
         fetchLikedMovies()
     }
-    private fun fetchRecommendations() {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.openai.com/v1/chat/completions")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+   // private fun fetchRecommendations(prompt: String) {
+     //   val chatGPTRequest = ChatGPTRequest(prompt = prompt)
+        // Assume retrofit setup for ChatGPT API is done
+     //   val chatGPTService = Retrofit.Builder() // Add your Retrofit builder setup
+      //      .build()
+      //      .create(ChatGPTApiService::class.java)
 
-        val service = retrofit.create(ChatGPTApiService::class.java)
-        val call = service.getRecommendations("your_query_parameters")
+//        chatGPTService.getRecommendations(chatGPTRequest).enqueue(object : Callback<ChatGPTResponse> {
+            //override fun onResponse(call: Call<ChatGPTResponse>, response: Response<ChatGPTResponse>) {
+             //   val recommendations = response.body()?.choices?.firstOrNull()?.text ?: ""
+              //  fetchMoviesFromTMDB(recommendations)
+           // }
 
-        call.enqueue(object : retrofit2.Callback<RecommendationsResponse> {
-            override fun onResponse(call: Call<RecommendationsResponse>, response: Response<RecommendationsResponse>) {
-                if (response.isSuccessful) {
-                    // Process the recommendations
-                    val recommendations = response.body()?.recommendations ?: emptyList()
-                    // Update your UI or logic based on recommendations
-                } else {
-                    Log.e("API Error", "Error fetching recommendations")
-                }
+            //override fun onFailure(call: Call<ChatGPTResponse>, t: Throwable) {
+              //  Log.e("API Error", "Network error getting recommendations", t)
+         //   }
+       // })
+        //private fun fetchMoviesFromTMDB(recommendations: String) {
+            // Parse recommendations and query TMDB for movies
+            // Similar Retrofit call setup as for ChatGPT, adjusted for TMDB's API
+       // }
+       // private fun generatePromptFromLikedMovies(likedMoviesTitles: List<String>): String {
+        //    return if (likedMoviesTitles.isEmpty()) {
+         //       "I'm looking for movie recommendations. What do you suggest?"
+          //  } else {
+           //     "I like movies such as ${likedMoviesTitles.joinToString(", ")}. Based on these, what other movies would you recommend?"
+          //  }
+        //}
+   // }
+
+
+
+
+
+
+    private fun removeLikedMovie(movie: Movie) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: run {
+            Log.w("Firestore", "User not logged in")
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("users")
+            .document(userId)
+            .collection("likedMovies")
+            .document(movie.id.toString())
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firestore", "Movie successfully removed from liked movies")
+                AppGlobals.GlobalMoviesList.removeAll { it.id == movie.id }
             }
-
-            override fun onFailure(call: Call<RecommendationsResponse>, t: Throwable) {
-                Log.e("API Error", "Network error getting recommendations", t)
+            .addOnFailureListener { e ->
+                Log.w("Firestore", "Error removing movie from liked movies", e)
             }
-        })
     }
 
-    interface ChatGPTApiService {
-        @GET("getRecommendations")
-        fun getRecommendations(@Query("param") param: String): Call<RecommendationsResponse>
-    }
-
-    data class RecommendationsResponse(val recommendations: List<String>)
 
 
     private fun fetchLikedMovies() {
