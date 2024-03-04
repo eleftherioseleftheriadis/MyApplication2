@@ -30,6 +30,7 @@ class MoviesAdapter(
         fun bind(movie: Movie) {
             val imageUrl = movie.posterPath?.let { "https://image.tmdb.org/t/p/original/${movie.posterPath}" }
             Log.d("ImageURL", "Received URL: $imageUrl")
+            Log.d("Adapter", "Genres: ${movie.genres?.joinToString(", ") { it.name }}")
             Glide.with(itemView.context)
                 .load(imageUrl ?: R.drawable.default_placeholder) // Use the image URL or a default placeholder
                 .placeholder(R.drawable.default_placeholder)
@@ -38,7 +39,7 @@ class MoviesAdapter(
 
             titleTextView.text = movie.title
             overviewTextView.text = movie.overview
-            genreTextView.text = movie.genreIds?.joinToString(", ") { it.toString() } ?: "No genres available"
+            genreTextView.text = movie.genres?.joinToString(", ") { it.name } ?: "No genres available"
 
             itemView.setOnClickListener {
                 onLikeClick(movie)

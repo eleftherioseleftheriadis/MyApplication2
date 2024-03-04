@@ -55,6 +55,8 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.activity:activity:1.8.2") // For Material Design 3
     implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.activity:activity-ktx:1.8.2")
     implementation("androidx.compose.material3:material3:1.2.0")
     implementation("androidx.compose.material3:material3-window-size-class:1.2.0")
@@ -75,6 +77,9 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     implementation("com.google.android.material:material:1.11.0")
     implementation("com.android.volley:volley:1.2.1")
+    implementation("org.json:json:20240303")
+    implementation("com.google.code.gson:gson:2.10.1")
+
 }
 
 // Apply the Google Services plugin

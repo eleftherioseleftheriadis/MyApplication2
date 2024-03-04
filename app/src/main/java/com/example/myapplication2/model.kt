@@ -3,12 +3,17 @@ import com.google.gson.annotations.SerializedName
 
     data class RecommendationsResponse(val recommendations: List<String>)
 
-    data class ChatGPTRequest(
-            val model: String = "text-davinci-003", // Adjust model as necessary
-            val prompt: String,
-            val temperature: Double = 0.7,
-            val max_tokens: Int = 150
-    )
+data class ChatGPTRequest(
+    val model: String,
+    val messages: List<Message>,
+    val temperature: Double,
+    val max_tokens: Int
+)
+
+data class Message(
+    val role: String,
+    val content: String
+)
 
 data class ChatGPTResponse(
     @SerializedName("id") val id: String,

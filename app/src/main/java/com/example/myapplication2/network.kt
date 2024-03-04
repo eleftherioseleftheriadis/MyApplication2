@@ -11,9 +11,8 @@ import com.example.myapplication2.MainActivity
 
 
 interface ChatGPTApiService {
-    @Headers("Authorization: Bearer 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")
+    @Headers("Authorization: Bearer ")
     @POST("chat/completions")
     fun getRecommendations(@Body payload: ChatGPTRequest): Call<ChatGPTResponse>
 }
-
 

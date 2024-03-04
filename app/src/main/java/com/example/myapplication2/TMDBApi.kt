@@ -12,4 +12,11 @@ interface TMDBApi {
     fun getTrendingMovies(
         @Query("api_key") apiKey: String
     ): Call<TrendingMoviesResponse>
+
+    @GET("search/movie")
+    fun searchMovies(
+        @Query("api_key") apiKey: String,
+        @Query("query") query: String
+    ): Call<SearchMoviesResponse>
 }
+

@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             "id" to movie.id,
             "title" to movie.title,
             "overview" to movie.overview,
-            "genreIds" to movie.genreIds,
+            "genreIds" to movie.genres,
             "posterPath" to movie.posterPath,
             "isLiked" to movie.isLiked,
             "isWatched" to movie.isWatched
