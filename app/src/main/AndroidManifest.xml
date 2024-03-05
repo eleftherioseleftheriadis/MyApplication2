@@ -28,6 +28,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".LikedMoviesActivity"></activity>
+        <activity android:name=".RecommendedMoviesActivity"></activity>
         <activity
             android:name=".LoginActivity"
             android:exported="true"

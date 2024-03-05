@@ -9,17 +9,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.Intent
 import android.widget.Button
-import retrofit2.Call
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import android.widget.Toast
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.MediaType.Companion.toMediaType
 import java.io.IOException
-import com.google.gson.Gson
+import org.json.JSONObject
+import org.json.JSONException
+import org.json.JSONArray
 
 
 
@@ -75,61 +73,89 @@ class LikedMoviesActivity : AppCompatActivity() {
     private fun fetchRecommendations(prompt: String) {
         val client = OkHttpClient()
 
-
         val mediaType = "application/json; charset=utf-8".toMediaType()
         val jsonPayload = """
-        {
-            "model": "gpt-3.5-turbo",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": "$prompt"
-                }
-            ],
-            "temperature": 0.5,
-            "max_tokens": 500
-        }
+    {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+            {
+                "role": "user",
+                "content": "$prompt"
+            }
+        ],
+        "temperature": 0.5,
+        "max_tokens": 500
+    }
     """.trimIndent()
         Log.d("ChatGPT API", "Sending request to ChatGPT with prompt: $prompt")
         val requestBody = jsonPayload.toRequestBody(mediaType)
         val request = Request.Builder()
             .url("https://api.openai.com/v1/chat/completions")
             .post(requestBody)
-            .addHeader("Authorization", "Bearer ") // Replace YOUR_API_KEY with your actual API key
+            .addHeader("Authorization", "Bearer ") // Use your actual API key
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
             override fun onFailure(call: okhttp3.Call, e: IOException) {
-                // Handle failure here
                 Log.e("ChatGPT API", "Network error", e)
             }
 
-            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+
+
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
                     Log.e("ChatGPT API", "Response not successful: ${response.code}")
+
                     return
                 }
 
-                val responseBody = response.body?.string()
-                if (responseBody != null) {
-                    // Use Gson to parse the JSON response
-                    val gson = Gson()
-                    val chatGPTResponse = gson.fromJson(responseBody, ChatGPTResponse::class.java)
-                    val recommendations = chatGPTResponse.choices.firstOrNull()?.text?.trim()
+                val responseBody = response.body?.string() ?: ""
+                Log.d("ChatGPT API", "Full API Response: $responseBody")
 
-                    if (recommendations != null) {
-                        Log.d("ChatGPT API", "Recommendations received: $recommendations")
-                        // Process the recommendations here
-                    } else {
-                        Log.d("ChatGPT API", "No recommendations found.")
+                // Now parse the JSON to extract the recommendations
+                    try {
+                        val jsonObj = JSONObject(responseBody)
+                        val choices = jsonObj.getJSONArray("choices")
+                        if (choices.length() > 0) {
+                            val firstChoice = choices.getJSONObject(0).getJSONObject("message")
+                            val content = firstChoice.getString("content")
+                            val jsonContent = JSONObject(content)
+
+                            // Initialize an empty JSON array
+                            val movieTitles = ArrayList<String>()
+                            if (jsonContent.has("movies")) {
+                                val moviesArray = jsonContent.getJSONArray("movies")
+                                for (i in 0 until moviesArray.length()) {
+                                    val item = moviesArray.get(i)
+                                    if (item is JSONObject) {
+                                        // If the item is a JSONObject, extract the title as a string.
+                                        movieTitles.add(item.getString("title"))
+                                    } else if (item is String) {
+                                        // If the item is directly a String, add it to the list.
+                                        movieTitles.add(item)
+                                    }
+                                }
+                            }
+
+
+                            // Now you can use movieTitles as intended
+                        runOnUiThread {
+                            // Fetch movie details from TMDB or update UI accordingly
+                            showRecommendedMovies(movieTitles)
+                        }
                     }
-                } else {
-                    Log.e("ChatGPT API", "Response body is null")
+                }
+                catch (e: JSONException) {
+                    Log.e("ChatGPT API", "JSON parsing error", e)
+                }
+
+                catch (e: JSONException) {
+                    Log.e("ChatGPT API", "Failed to parse JSON response", e)
                 }
             }
-
         })
     }
+
 
 
 
@@ -148,50 +174,27 @@ class LikedMoviesActivity : AppCompatActivity() {
             }
     }
 
-    private fun fetchMoviesFromTMDB(recommendations: String) {
-        // Assume you have a Retrofit service for TMDB set up similar to this:
-        val service = Retrofit.Builder()
-            .baseUrl("https://api.themoviedb.org/3/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(TMDBApi::class.java)
 
-        // Parse the recommendations to extract search keywords or titles
-        val searchKeywords = parseRecommendationsToSearchKeywords(recommendations)
-
-        // For simplicity, let's assume parseRecommendationsToSearchKeywords returns a list of keywords
-        searchKeywords.forEach { keyword ->
-            service.searchMovies(apiKey = "735fb60abd35639daa0561b46481d912", query = keyword).enqueue(object : retrofit2.Callback<SearchMoviesResponse> {
-                override fun onResponse(call: Call<SearchMoviesResponse>, response: Response<SearchMoviesResponse>) {
-                    if (response.isSuccessful) {
-                        val movies = response.body()?.results ?: emptyList()
-                        // Update your UI with these movies
-                        // For example, adding them to a list in your adapter
-                        runOnUiThread {
-                            moviesAdapter.updateMovies(movies.toMutableList())
-                        }
-                    } else {
-                        Log.e("TMDB API", "Error fetching movies: ${response.errorBody()?.string()}")
-                    }
-                }
-
-                override fun onFailure(call: Call<SearchMoviesResponse>, t: Throwable) {
-                    Log.e("TMDB API", "Network error getting movies", t)
-                }
-            })
-        }
-    }
 
     // Dummy implementation for parsing - replace with actual parsing logic
     private fun parseRecommendationsToSearchKeywords(recommendations: String): List<String> {
         // Implement parsing logic here. For now, let's just return the whole recommendations string in a list
         return recommendations.split(",").map { it.trim() }
     }
+
+    private fun showRecommendedMovies(movieTitles: ArrayList<String>) {
+        val intent = Intent(this, RecommendedMoviesActivity::class.java).apply {
+            putStringArrayListExtra("movieTitles", movieTitles)
+        }
+        startActivity(intent)
+    }
+
+
     private fun generatePromptFromLikedMovies(likedMoviesTitles: List<String>): String {
         return if (likedMoviesTitles.isEmpty()) {
             "I'm looking for movie recommendations. What do you suggest?"
         } else {
-            "I like movies such as ${likedMoviesTitles.joinToString(", ")}. Based on these, recommend 2 movies"
+            "I like movies such as ${likedMoviesTitles.joinToString(", ")}. Based on these, recommend 2 movies give me only titles and in json format"
         }
     }
 
@@ -240,5 +243,6 @@ class LikedMoviesActivity : AppCompatActivity() {
                 Log.w("Firestore", "Error getting liked movies: ", exception)
             }
     }
+
 
 }

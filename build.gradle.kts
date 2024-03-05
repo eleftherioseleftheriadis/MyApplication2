@@ -3,6 +3,7 @@ buildscript {
         google()
         mavenCentral()
     }
+
     dependencies {
         classpath("com.android.tools.build:gradle:8.2.2") // Ensure you have the latest compatible version
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21") // Use the correct version of Kotlin
@@ -16,4 +17,6 @@ allprojects {
         google()
         mavenCentral()
     }
+
 }
+

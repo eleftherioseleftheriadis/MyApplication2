@@ -1,5 +1,7 @@
 package com.example.myapplication2
 import com.google.gson.annotations.SerializedName
+import com.google.firebase.firestore.Exclude
+
 
 data class TrendingMoviesResponse(val results: List<Movie>)
 data class SearchMoviesResponse(
@@ -22,4 +24,7 @@ data class Movie @JvmOverloads constructor(
     @SerializedName("poster_path") var posterPath: String? = null,
     var isLiked: Boolean = false,
     var isWatched: Boolean = false
-)
+) {
+    @Exclude // Correct way to use @Exclude in a data class for a method
+    fun getExtraField(): String? = null // This method will be ignored by Firestore
+}
