@@ -17,7 +17,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import java.io.IOException
 import org.json.JSONObject
 import org.json.JSONException
-import org.json.JSONArray
 
 
 
@@ -92,7 +91,7 @@ class LikedMoviesActivity : AppCompatActivity() {
         val request = Request.Builder()
             .url("https://api.openai.com/v1/chat/completions")
             .post(requestBody)
-            .addHeader("Authorization", "Bearer ") // Use your actual API key
+            .addHeader("Authorization", "Bearer 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") // Use your actual API key
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -117,35 +116,34 @@ class LikedMoviesActivity : AppCompatActivity() {
                         val jsonObj = JSONObject(responseBody)
                         val choices = jsonObj.getJSONArray("choices")
                         if (choices.length() > 0) {
-                            val firstChoice = choices.getJSONObject(0).getJSONObject("message")
-                            val content = firstChoice.getString("content")
+                            val firstChoice = choices.getJSONObject(0)
+                            val message = firstChoice.getJSONObject("message")
+                            val content = message.getString("content")
                             val jsonContent = JSONObject(content)
+                            val recommendations = jsonContent.getJSONArray("recommendations")
 
-                            // Initialize an empty JSON array
                             val movieTitles = ArrayList<String>()
-                            if (jsonContent.has("movies")) {
-                                val moviesArray = jsonContent.getJSONArray("movies")
-                                for (i in 0 until moviesArray.length()) {
-                                    val item = moviesArray.get(i)
-                                    if (item is JSONObject) {
-                                        // If the item is a JSONObject, extract the title as a string.
-                                        movieTitles.add(item.getString("title"))
-                                    } else if (item is String) {
-                                        // If the item is directly a String, add it to the list.
-                                        movieTitles.add(item)
-                                    }
-                                }
+                            for (i in 0 until recommendations.length()) {
+                                val recommendation = recommendations.getJSONObject(i)
+                                val title = recommendation.getString("title")
+                                movieTitles.add(title)
                             }
 
-
-                            // Now you can use movieTitles as intended
-                        runOnUiThread {
-                            // Fetch movie details from TMDB or update UI accordingly
-                            showRecommendedMovies(movieTitles)
+                            Log.d("LikedListActivity", "Preparing to show recommended movies with titles: $movieTitles")
+                            if (movieTitles.isNotEmpty()) {
+                                runOnUiThread {
+                                    // Make sure to call this method on the UI thread if it interacts with the UI
+                                    showRecommendedMovies(movieTitles)
+                                }
+                            } else {
+                                Log.d("LikedListActivity", "No movie titles to show.")
+                            }
                         }
+                    } catch (e: JSONException) {
+                        Log.e("ChatGPT API", "JSON parsing error", e)
                     }
-                }
-                catch (e: JSONException) {
+
+                    catch (e: JSONException) {
                     Log.e("ChatGPT API", "JSON parsing error", e)
                 }
 
@@ -183,7 +181,9 @@ class LikedMoviesActivity : AppCompatActivity() {
     }
 
     private fun showRecommendedMovies(movieTitles: ArrayList<String>) {
+        Log.d("LikedListActivity", "Movie titles before intent: $movieTitles")
         val intent = Intent(this, RecommendedMoviesActivity::class.java).apply {
+            Log.d("LikedListActivity", "Movie titles before intent: $movieTitles")
             putStringArrayListExtra("movieTitles", movieTitles)
         }
         startActivity(intent)

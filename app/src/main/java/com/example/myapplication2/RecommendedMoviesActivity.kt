@@ -44,6 +44,11 @@ class RecommendedMoviesActivity : AppCompatActivity() {
 
         // Extract movie titles from intent extras
         val movieTitles = intent.getStringArrayListExtra("movieTitles") ?: arrayListOf()
+        Log.d("RecommendedActivity", "Received movie titles: $movieTitles")
+        Log.d("RecommendedActivity", "Intent extras: ${intent.extras}")
+
+        Log.d("RecommendedActivity", "Received movie titles: $movieTitles")
+
 
         // Fetch movie details for each title from TMDB and update UI
         fetchMovieDetailsFromTMDB(movieTitles)
@@ -58,11 +63,13 @@ class RecommendedMoviesActivity : AppCompatActivity() {
 
         // Iterate over the movie titles to fetch details for each. Simplified for example purposes.
         movieTitles.forEach { title ->
+            Log.d("TMDB API", "Fetching details for movie title: $title")
             service.searchMovies(apiKey = "735fb60abd35639daa0561b46481d912", query = title).enqueue(object : retrofit2.Callback<SearchMoviesResponse> {
                 override fun onResponse(call: retrofit2.Call<SearchMoviesResponse>, response: retrofit2.Response<SearchMoviesResponse>) {
                     if (response.isSuccessful) {
                         // Assuming your response includes a list of movies
                         val movies = response.body()?.results ?: listOf()
+                        Log.d("TMDB API Success", "Movies fetched for title '$title': ${movies.size}")
                         runOnUiThread {
                             moviesAdapter.updateMovies(movies)
                         }
