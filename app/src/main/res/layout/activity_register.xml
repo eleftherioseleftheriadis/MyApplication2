@@ -4,31 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     tools:context=".RegisterActivity">
 
-    <EditText
-        android:id="@+id/emailEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/email"
-        android:inputType="textEmailAddress"
-        android:layout_margin="16dp"/>
+<EditText
+android:id="@+id/emailEditText"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/email"
+android:inputType="textEmailAddress"
+android:background="@drawable/edit_text_background"
+    android:textColor="@color/textColor"
+    android:layout_margin="16dp"/>
 
-    <EditText
-        android:id="@+id/passwordEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        android:layout_below="@id/emailEditText"
-        android:layout_margin="16dp"/>
+<EditText
+android:id="@+id/passwordEditText"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/password"
+android:inputType="textPassword"
+android:background="@drawable/edit_text_background"
+    android:textColor="@color/textColor"
+    android:layout_below="@id/emailEditText"
+    android:layout_margin="16dp"/>
 
-    <Button
-        android:id="@+id/registerButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/register"
-        android:layout_below="@id/passwordEditText"
-        android:layout_margin="16dp"/>
-
-</RelativeLayout>
+<Button
+android:id="@+id/registerButton"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="@string/register"
+android:background="@color/buttonColor"
+    android:textColor="@color/buttonTextColor"
+    android:layout_below="@id/passwordEditText"
+    android:layout_margin="16dp"/>
+    </RelativeLayout>

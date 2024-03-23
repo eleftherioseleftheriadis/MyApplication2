@@ -60,10 +60,14 @@ class RecommendedMoviesActivity : AppCompatActivity() {
         findViewById<Button>(R.id.signOutButton).setOnClickListener {
             FirebaseAuth.getInstance().signOut()
             Toast.makeText(this, "Signed out", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, MainActivity::class.java)
+            // Add flags to clear the task and start a new one
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+
             finish()
         }
 
-        // Setup Go to Main button
         findViewById<Button>(R.id.btnGoToMainPage).setOnClickListener {
             startActivity(Intent(this, MainActivity::class.java))
         }

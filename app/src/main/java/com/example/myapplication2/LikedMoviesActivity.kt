@@ -30,6 +30,14 @@ class LikedMoviesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d("LikedMoviesActivity", "onCreate started")
         super.onCreate(savedInstanceState)
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            // User not signed in, redirect to MainActivity
+            val loginIntent = Intent(this, MainActivity::class.java)
+            startActivity(loginIntent)
+            finish() // Finish this activity so the user can't navigate back to it without logging in
+            return // Stop further execution of this method
+        }
+
         setContentView(R.layout.activity_liked_movies)
 
         likedMoviesRecyclerView = findViewById(R.id.likedMoviesRecyclerView)
@@ -56,6 +64,15 @@ class LikedMoviesActivity : AppCompatActivity() {
         likedMoviesRecyclerView.adapter = moviesAdapter
 
         // Set the OnClickListener for the button after setContentView
+        findViewById<Button>(R.id.signOutButton).setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            Toast.makeText(this, "Signed out", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, MainActivity::class.java)
+            // Add flags to clear the task and start a new one
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
+        }
         findViewById<Button>(R.id.btnGoToMainOrSignOut).setOnClickListener {
             // Intent to go back to MainActivity
             val mainIntent = Intent(this, MainActivity::class.java)
@@ -93,7 +110,7 @@ class LikedMoviesActivity : AppCompatActivity() {
         val request = Request.Builder()
             .url("https://api.openai.com/v1/chat/completions")
             .post(requestBody)
-            .addHeader("Authorization", "Bearer ") // Use your actual API key
+            .addHeader("Authorization", "Bearer API_KEY") // Use your actual API key
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {

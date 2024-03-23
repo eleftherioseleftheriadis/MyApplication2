@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 
-
     private lateinit var auth: FirebaseAuth
     private lateinit var moviesRecyclerView: RecyclerView
     private lateinit var moviesAdapter: MoviesAdapter

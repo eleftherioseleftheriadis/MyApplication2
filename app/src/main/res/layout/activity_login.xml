@@ -4,31 +4,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
     tools:context=".LoginActivity">
 
-    <EditText
-        android:id="@+id/emailEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/email"
-        android:inputType="textEmailAddress"
-        android:layout_margin="16dp"/>
+<EditText
+android:id="@+id/emailEditText"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/email"
+android:inputType="textEmailAddress"
+android:layout_margin="16dp"
+android:textColor="@color/textColor"
+    android:backgroundTint="@color/editTextBackground"
+    android:textColorHint="@color/hintColor"/>
 
-    <EditText
-        android:id="@+id/passwordEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        android:layout_below="@id/emailEditText"
-        android:layout_margin="16dp"/>
+<EditText
+android:id="@+id/passwordEditText"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:hint="@string/password"
+android:inputType="textPassword"
+android:layout_below="@id/emailEditText"
+android:layout_margin="16dp"
+android:textColor="@color/textColor"
+android:backgroundTint="@color/editTextBackground"
+android:textColorHint="@color/hintColor"/>
 
-    <Button
-        android:id="@+id/loginButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/login"
-        android:layout_below="@id/passwordEditText"
-        android:layout_margin="16dp"/>
+<Button
+android:id="@+id/loginButton"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:text="@string/login"
+android:layout_below="@id/passwordEditText"
+android:layout_margin="16dp"
+android:backgroundTint="@color/buttonColor"
+    android:textColor="@color/buttonTextColor"/>
 
-</RelativeLayout>
+    </RelativeLayout>
