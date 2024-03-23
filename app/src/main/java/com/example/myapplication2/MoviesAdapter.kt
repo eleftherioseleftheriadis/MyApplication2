@@ -25,7 +25,7 @@ class MoviesAdapter(
         private val overviewTextView: TextView = view.findViewById(R.id.movieOverviewTextView)
         private val genreTextView: TextView = view.findViewById(R.id.movieGenreTextView)
         private val likeButton: Button = view.findViewById(R.id.likeButton)
-        private val watchlistButton: Button = view.findViewById(R.id.addToWatchlistButton)
+        //private val watchlistButton: Button = view.findViewById(R.id.addToWatchlistButton)
 
         fun bind(movie: Movie) {
             val imageUrl = movie.posterPath?.let { "https://image.tmdb.org/t/p/original/${movie.posterPath}" }
@@ -50,10 +50,10 @@ class MoviesAdapter(
                 onLikeClick(movie)
                 notifyItemChanged(adapterPosition)
                 }
-            watchlistButton.setOnClickListener {
-                onMovieClick(movie)
-                notifyItemChanged(adapterPosition)
-            }
+            //watchlistButton.setOnClickListener {
+             //   onMovieClick(movie)
+            //    notifyItemChanged(adapterPosition)
+            //}
         }
 
     }

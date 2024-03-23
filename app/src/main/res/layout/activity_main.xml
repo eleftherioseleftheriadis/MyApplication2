@@ -4,12 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:textColor="#FFFFFF"
+    android:background="#212121"
     tools:context=".MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/moviesRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:textColor="#FFFFFF"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/btnShowLikedMovies"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,18 +22,19 @@
         android:id="@+id/btnShowLikedMovies"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Show Liked Movies"
+        android:text="WatchList"
         app:layout_constraintTop_toBottomOf="@id/moviesRecyclerView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnRegister"
+        app:backgroundTint="#D32F2F"
         app:layout_constraintHorizontal_chainStyle="packed"
         android:layout_marginEnd="8dp"/>
-
     <Button
         android:id="@+id/btnRegister"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Register"
+        app:backgroundTint="#D32F2F"
         app:layout_constraintTop_toTopOf="@id/btnShowLikedMovies"
         app:layout_constraintStart_toEndOf="@id/btnShowLikedMovies"
         app:layout_constraintEnd_toEndOf="parent"
@@ -41,6 +45,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Sign Out"
+        app:backgroundTint="#D32F2F"
         app:layout_constraintTop_toBottomOf="@id/btnShowLikedMovies"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

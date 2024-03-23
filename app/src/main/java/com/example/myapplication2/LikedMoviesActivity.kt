@@ -28,6 +28,7 @@ class LikedMoviesActivity : AppCompatActivity() {
     private lateinit var moviesAdapter: MoviesAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("LikedMoviesActivity", "onCreate started")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_liked_movies)
 
@@ -63,6 +64,7 @@ class LikedMoviesActivity : AppCompatActivity() {
         val recommendationsButton: Button = findViewById(R.id.btnGetRecommendations)
         recommendationsButton.setOnClickListener {
             Toast.makeText(this, "Fetching recommendations...", Toast.LENGTH_SHORT).show()
+            Log.d("LikedMoviesActivity", "Fetching liked movies titles to generate prompt")
             fetchLikedMoviesTitlesAndGeneratePrompt()
         }
 
@@ -91,7 +93,7 @@ class LikedMoviesActivity : AppCompatActivity() {
         val request = Request.Builder()
             .url("https://api.openai.com/v1/chat/completions")
             .post(requestBody)
-            .addHeader("Authorization", "Bearer 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") // Use your actual API key
+            .addHeader("Authorization", "Bearer ") // Use your actual API key
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -101,7 +103,7 @@ class LikedMoviesActivity : AppCompatActivity() {
 
 
 
-                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
                 if (!response.isSuccessful) {
                     Log.e("ChatGPT API", "Response not successful: ${response.code}")
 
@@ -112,38 +114,39 @@ class LikedMoviesActivity : AppCompatActivity() {
                 Log.d("ChatGPT API", "Full API Response: $responseBody")
 
                 // Now parse the JSON to extract the recommendations
-                    try {
-                        val jsonObj = JSONObject(responseBody)
-                        val choices = jsonObj.getJSONArray("choices")
-                        if (choices.length() > 0) {
-                            val firstChoice = choices.getJSONObject(0)
-                            val message = firstChoice.getJSONObject("message")
-                            val content = message.getString("content")
-                            val jsonContent = JSONObject(content)
-                            val recommendations = jsonContent.getJSONArray("recommendations")
+                try {
+                    val jsonObj = JSONObject(responseBody)
+                    val choices = jsonObj.getJSONArray("choices")
+                    if (choices.length() > 0) {
+                        val firstChoice = choices.getJSONObject(0)
+                        val message = firstChoice.getJSONObject("message")
+                        val content = message.getString("content")
+                        val jsonContent = JSONObject(content)
 
-                            val movieTitles = ArrayList<String>()
-                            for (i in 0 until recommendations.length()) {
-                                val recommendation = recommendations.getJSONObject(i)
-                                val title = recommendation.getString("title")
-                                movieTitles.add(title)
-                            }
-
-                            Log.d("LikedListActivity", "Preparing to show recommended movies with titles: $movieTitles")
-                            if (movieTitles.isNotEmpty()) {
-                                runOnUiThread {
-                                    // Make sure to call this method on the UI thread if it interacts with the UI
-                                    showRecommendedMovies(movieTitles)
-                                }
-                            } else {
-                                Log.d("LikedListActivity", "No movie titles to show.")
+                        // Adjusted to use the correct key "movies"
+                        val movieTitles = ArrayList<String>()
+                        if (jsonContent.has("movies")) {
+                            val moviesArray = jsonContent.getJSONArray("movies")
+                            for (i in 0 until moviesArray.length()) {
+                                movieTitles.add(moviesArray.getString(i))
                             }
                         }
-                    } catch (e: JSONException) {
-                        Log.e("ChatGPT API", "JSON parsing error", e)
-                    }
 
-                    catch (e: JSONException) {
+                        Log.d("LikedListActivity", "Preparing to show recommended movies with titles: $movieTitles")
+                        if (movieTitles.isNotEmpty()) {
+                            runOnUiThread {
+                                showRecommendedMovies(movieTitles)
+                            }
+                        } else {
+                            Log.d("LikedListActivity", "No movie titles to show.")
+                        }
+                    }
+                } catch (e: JSONException) {
+
+                    Log.e("ChatGPT API", "JSON parsing error", e)
+                }
+
+                catch (e: JSONException) {
                     Log.e("ChatGPT API", "JSON parsing error", e)
                 }
 
@@ -165,6 +168,7 @@ class LikedMoviesActivity : AppCompatActivity() {
             .addOnSuccessListener { documents ->
                 val likedMoviesTitles = documents.mapNotNull { it.toObject(Movie::class.java).title }
                 val prompt = generatePromptFromLikedMovies(likedMoviesTitles)
+                Log.d("LikedMoviesActivity", "Preparing to send API request")
                 fetchRecommendations(prompt) // Assuming fetchRecommendations now takes a prompt as a parameter
             }
             .addOnFailureListener { exception ->
@@ -194,7 +198,7 @@ class LikedMoviesActivity : AppCompatActivity() {
         return if (likedMoviesTitles.isEmpty()) {
             "I'm looking for movie recommendations. What do you suggest?"
         } else {
-            "I like movies such as ${likedMoviesTitles.joinToString(", ")}. Based on these, recommend 2 movies give me only titles and in json format"
+            "I like movies such as ${likedMoviesTitles.joinToString(", ")}. I'm looking for movie recommendations. Can you suggest 5 movies, formatted as a JSON list under the key 'movies' with no other context in response?"
         }
     }
 
